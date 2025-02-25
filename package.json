@@ -1,7 +1,7 @@
 {
   "name": "PiOpenHub",
   "version": "1.0.0",
-  "description": "A powerful platform for integrating AI, blockchain, and edge computing.",
+  "description": "A powerful platform for integrating AI, blockchain, edge computing, and quantum technology.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -12,7 +12,9 @@
     "deploy": "bash scripts/deploy.sh",
     "seed": "node database/seeders/seed_data.py",
     "monitor": "bash scripts/monitor.sh",
-    "optimize": "bash scripts/optimize.sh"
+    "optimize": "bash scripts/optimize.sh",
+    "quantum-simulate": "node quantum/simulate.js",  // Quantum simulation script
+    "quantum-deploy": "bash scripts/deploy_quantum.sh" // Quantum deployment script
   },
   "dependencies": {
     "express": "^4.17.1",
@@ -31,7 +33,12 @@
     "node-fetch": "^2.6.1",
     "redis": "^3.1.2",
     "mongoose-paginate-v2": "^1.4.0",
-    "@hapi/joi": "^17.4.0"
+    "@hapi/joi": "^17.4.0",
+    "qiskit": "^0.29.0",  // Quantum computing library
+    "quantum-js": "^1.0.0", // Quantum simulation library
+    "tensorflow": "^2.6.0", // For advanced AI capabilities
+    "pytorch": "^1.9.0", // For advanced AI capabilities
+    "web3": "^1.5.0" // For blockchain interactions
   },
   "devDependencies": {
     "nodemon": "^2.0.7",
@@ -41,7 +48,8 @@
     "webpack-cli": "^4.2.0",
     "babel-loader": "^8.2.2",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-preset-env": "^1.7.0"
+    "babel-preset-env": "^1.7.0",
+    "cypress": "^7.7.0" // For end-to-end testing
   },
   "engines": {
     "node": ">=14.0.0"
@@ -54,6 +62,7 @@
     "AI",
     "Blockchain",
     "Edge Computing",
+    "Quantum Technology",
     "Web Application",
     "API"
   ],
@@ -63,4 +72,4 @@
     "url": "https://github.com/KOSASIH/PiOpenHub/issues"
   },
   "homepage": "https://github.com/KOSASIH/PiOpenHub#readme"
-}
+  }
