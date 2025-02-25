@@ -95,7 +95,7 @@ Contributions are welcome! If you would like to contribute to Pi Open Hub, pleas
 5. Open a pull request.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for more details.
 
 ## Contact
 For any inquiries or feedback, please contact:
