@@ -1,0 +1,13 @@
+/* Theme-specific styles */
+.primary-button {
+    background-color: #5cb85c;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    background-color: #4cae4c;
+}
