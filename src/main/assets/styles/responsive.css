@@ -1,0 +1,10 @@
+/* Responsive styles for different screen sizes */
+@media (max-width: 768px) {
+    header {
+        font-size: 1.2em;
+    }
+
+    body {
+        padding: 10px;
+    }
+}
