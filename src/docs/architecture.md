@@ -7,11 +7,10 @@
    - [Backend](#backend)
    - [Database](#database)
    - [Blockchain Integration](#blockchain-integration)
-3. [Architecture Diagram](#architecture-diagram)
-4. [Technologies Used](#technologies-used)
-5. [Design Principles](#design-principles)
-6. [Deployment Architecture](#deployment-architecture)
-7. [Conclusion](#conclusion)
+3. [Technologies Used](#technologies-used)
+4. [Design Principles](#design-principles)
+5. [Deployment Architecture](#deployment-architecture)
+6. [Conclusion](#conclusion)
 
 ## Introduction
 The PiOpenHub project is designed to facilitate cryptocurrency transactions and blockchain interactions in a secure and efficient manner. This document outlines the architecture of the system, detailing its components, interactions, and the technologies employed.
