@@ -9,5 +9,5 @@ pytest==7.1.2
 pytest-flask==1.2.0
 pytest-cov==3.0.0
 web3==5.29.0
-requests==2.27.1
+requests==2.32.2
 python-dotenv==0.19.2
