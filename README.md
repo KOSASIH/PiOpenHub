@@ -80,7 +80,7 @@ Once the application is running, you can access it via your web browser at `http
 - **Create Transaction:** `POST /api/transactions/create`
 - **Get Transaction History:** `GET /api/transactions/history`
 
-Refer to the [API Documentation](#api-documentation) for detailed information on each endpoint.
+Refer to the [API Documentation](src/docs/API.md) for detailed information on each endpoint.
 
 ## API Documentation
 For detailed API documentation, please refer to the `docs/API.md` file in the repository.
