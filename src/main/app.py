@@ -8,6 +8,7 @@ from logging.handlers import RotatingFileHandler
 from routes.userRoutes import user_routes
 from routes.transactionRoutes import transaction_routes
 from config import Config
+import os
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -25,6 +26,8 @@ jwt = JWTManager(app)
 if not app.debug:
     handler = RotatingFileHandler('error.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.ERROR)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
     app.logger.addHandler(handler)
 
 # Register routes
@@ -54,5 +57,10 @@ def unauthorized_response(callback):
 def expired_token_response(callback):
     return jsonify(message="Token has expired"), 401
 
+@jwt.invalid_token_loader
+def invalid_token_response(callback):
+    return jsonify(message="Invalid token"), 401
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Use environment variables for sensitive information
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=os.environ.get('DEBUG', 'True') == 'True')
