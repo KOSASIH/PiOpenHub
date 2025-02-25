@@ -49,9 +49,8 @@ The PiOpenHub project is designed to facilitate cryptocurrency transactions and 
   - Functions for creating, signing, and broadcasting transactions.
 
 ## Architecture Diagram
-![Architecture Diagram](path/to/architecture-diagram.png)
+![Architecture Diagram](code_structure.md)
 
-*Note: Replace `path/to/architecture-diagram.png` with the actual path to your architecture diagram image.*
 
 ## Technologies Used
 - **Frontend**: React, Redux, Axios
