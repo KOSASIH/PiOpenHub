@@ -13,6 +13,7 @@ PiOpenHub/
 │   │   ├── config/             # Configuration files
 │   │   │   ├── config.py       # Configuration settings (Python)
 │   │   │   ├── config.js       # Configuration settings (Node.js)
+│   │   │   ├── constant.py     # Configuration constants (constant.py) 
 │   │   ├── services/           # Business logic and services
 │   │   │   ├── cryptoService.py # Cryptocurrency transaction services
 │   │   │   ├── blockchainService.py # Blockchain interaction services
