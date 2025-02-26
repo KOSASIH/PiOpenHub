@@ -25,4 +25,4 @@ scikit-learn==1.0.2  # For machine learning
 numpy==1.21.6  # For numerical operations
 
 # Optional: Joblib for model persistence
-joblib==1.1.0  # For saving and loading models
+joblib==1.2.0  # For saving and loading models
