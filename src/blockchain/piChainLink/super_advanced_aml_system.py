@@ -1,7 +1,13 @@
 import hashlib
 import json
 import numpy as np
+import logging
 from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import LogisticRegression
+from cryptography.fernet import Fernet
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class AnomalyDetector:
     """Class to detect anomalies in transaction data."""
@@ -28,16 +34,16 @@ class BlockchainIdentity:
         """Register a new customer identity."""
         identity_hash = self.create_identity_hash(data)
         self.identities[customer_id] = identity_hash
-        print(f"Customer identity registered for {customer_id}: {identity_hash}")
+        logging.info(f"Customer identity registered for {customer_id}: {identity_hash}")
 
     def verify_identity(self, customer_id, data):
         """Verify a customer identity using the hash."""
         identity_hash = self.create_identity_hash(data)
         if customer_id in self.identities and self.identities[customer_id] == identity_hash:
-            print(f"Customer identity verified for {customer_id}.")
+            logging.info(f"Customer identity verified for {customer_id}.")
             return True
         else:
-            print(f"Customer identity verification failed for {customer_id}.")
+            logging.warning(f"Customer identity verification failed for {customer_id}.")
             return False
 
     def create_identity_hash(self, data):
@@ -79,7 +85,34 @@ class TransactionHistory:
 
     def report_suspicious_activity(self, customer_id, transaction_info):
         """Report suspicious activity."""
-        print(f"Suspicious activity reported for {customer_id}: {transaction_info}")
+        logging.warning(f"Suspicious activity reported for {customer_id}: {transaction_info}")
+
+class PredictiveModel:
+    """Class to predict the likelihood of a transaction being fraudulent."""
+    def __init__(self):
+        self.model = LogisticRegression()
+
+    def train_model(self, X, y):
+        """Train the predictive model."""
+        self.model.fit(X, y)
+
+    def predict(self, transaction):
+        """Predict if a transaction is fraudulent."""
+        return self.model.predict([transaction])
+
+class DataEncryption:
+    """Class to handle data encryption and decryption."""
+    def __init__(self):
+        self.key = Fernet.generate_key()
+        self.cipher = Fernet(self.key)
+
+    def encrypt_data(self, data):
+        """Encrypt the data."""
+        return self.cipher.encrypt(json.dumps(data).encode())
+
+    def decrypt_data(self, encrypted_data):
+        """Decrypt the data."""
+        return json.loads(self.cipher.decrypt(encrypted_data).decode())
 
 # Example usage
 if __name__ == "__main__":
@@ -92,7 +125,7 @@ if __name__ == "__main__":
     detector = AnomalyDetector(transaction_data[:, 0].astype(float).reshape(-1, 1))  # Only use the amount for anomaly detection
     detector.train_model()
     anomalies = detector.detect_anomalies()
-    print(f"Detected anomalies at indices: {anomalies}")
+    logging.info(f"Detected anomalies at indices: {anomalies}")
 
     # Blockchain identity management
     blockchain = BlockchainIdentity()
@@ -117,7 +150,7 @@ if __name__ == "__main__":
     }
     risk_assessment = TransactionRiskAssessment(transaction_info)
     risk_level = risk_assessment.assess_risk()
-    print(f"Risk level for transaction: {risk_level}")
+    logging.info(f"Risk level for transaction: {risk_level}")
 
     # Transaction history management
     transaction_history = TransactionHistory()
@@ -125,8 +158,28 @@ if __name__ == "__main__":
 
     # Check transaction history
     history = transaction_history.get_history(customer_id)
-    print(f"Transaction history for {customer_id}: {history}")
+    logging.info(f"Transaction history for {customer_id}: {history}")
 
     # Report suspicious activity
     if risk_level == "High":
         transaction_history.report_suspicious_activity(customer_id, transaction_info)
+
+    # Predictive model usage
+    predictive_model = PredictiveModel()
+    # Sample training data (X: transaction features, y: labels indicating fraud)
+    X_train = np.array([[500, 0], [15000, 1], [200, 0], [25000, 1], [100, 0]])  # Example features
+    y_train = np.array([0, 1, 0, 1, 0])  # 0: Not Fraud, 1: Fraud
+    predictive_model.train_model(X_train, y_train)
+
+    # Predicting a new transaction
+    new_transaction = [25000, 1]  # Example features for a new transaction
+    prediction = predictive_model.predict(new_transaction)
+    logging.info(f"Prediction for new transaction: {'Fraud' if prediction[0] == 1 else 'Not Fraud'}")
+
+    # Data encryption example
+    data_encryption = DataEncryption()
+    encrypted_data = data_encryption.encrypt_data(customer_info)
+    logging.info(f"Encrypted customer data: {encrypted_data}")
+
+    decrypted_data = data_encryption.decrypt_data(encrypted_data)
+    logging.info(f"Decrypted customer data: {decrypted_data}")
