@@ -1,58 +1,73 @@
 import hashlib
 import json
 import numpy as np
+from sklearn.ensemble import IsolationForest
+from qiskit import QuantumCircuit, Aer, execute
 import logging
-from sklearn.ensemble import IsolationForest, RandomForestClassifier
 from cryptography.fernet import Fernet
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+class QuantumHash:
+    """Class to create a quantum hash of data."""
+    def __init__(self, data):
+        self.data = data
+
+    def create_quantum_hash(self):
+        """Create a quantum hash using a simple quantum circuit."""
+        # Create a quantum circuit with 2 qubits
+        qc = QuantumCircuit(2)
+        qc.h(0)  # Apply Hadamard gate
+        qc.cx(0, 1)  # Apply CNOT gate
+        qc.measure_all()
+
+        # Simulate the quantum circuit
+        backend = Aer.get_backend('qasm_simulator')
+        job = execute(qc, backend, shots=1)
+        result = job.result()
+        counts = result.get_counts(qc)
+        
+        # Generate a hash from the counts
+        hash_value = hashlib.sha256(json.dumps(counts).encode()).hexdigest()
+        return hash_value
+
 class AnomalyDetector:
     """Class to detect anomalies in KYC data."""
     def __init__(self, data):
         self.data = data
-        self.isolation_forest = IsolationForest(contamination=0.1)
-        self.random_forest = RandomForestClassifier()
+        self.model = IsolationForest(contamination=0.1)
 
     def train_model(self):
-        """Train the anomaly detection models."""
-        self.isolation_forest.fit(self.data)
-        # For Random Forest, we need labeled data (0: normal, 1: anomaly)
-        labels = np.array([0] * (len(self.data) - 1) + [1])  # Last entry is an anomaly
-        self.random_forest.fit(self.data, labels)
+        """Train the anomaly detection model."""
+        self.model.fit(self.data)
 
     def detect_anomalies(self):
-        """Detect anomalies in the data using both models."""
-        isolation_predictions = self.isolation_forest.predict(self.data)
-        rf_predictions = self.random_forest.predict(self.data)
-        anomalies = np.where((isolation_predictions == -1) | (rf_predictions == 1))[0]
+        """Detect anomalies in the data."""
+        predictions = self.model.predict(self.data)
+        anomalies = np.where(predictions == -1)[0]
         return anomalies
 
 class BlockchainIdentity:
-    """Class to manage identity on a mock blockchain."""
+    """Class to manage identity on a blockchain."""
     def __init__(self):
         self.identities = {}
 
     def register_identity(self, user_id, data):
-        """Register a new identity."""
-        identity_hash = self.create_identity_hash(data)
-        self.identities[user_id] = identity_hash
-        logging.info(f"Identity registered for {user_id}: {identity_hash}")
+        """Register a new identity on the blockchain."""
+        quantum_hash = QuantumHash(data).create_quantum_hash()
+        self.identities[user_id] = quantum_hash
+        logging.info(f"Identity registered for {user_id}: {quantum_hash}")
 
     def verify_identity(self, user_id, data):
-        """Verify an identity using the hash."""
-        identity_hash = self.create_identity_hash(data)
-        if user_id in self.identities and self.identities[user_id] == identity_hash:
+        """Verify an identity using the quantum hash."""
+        quantum_hash = QuantumHash(data).create_quantum_hash()
+        if user_id in self.identities and self.identities[user_id] == quantum_hash:
             logging.info(f"Identity verified for {user_id}.")
             return True
         else:
             logging.warning(f"Identity verification failed for {user_id}.")
             return False
-
-    def create_identity_hash(self, data):
-        """Create a hash of the identity data."""
-        return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
 
 class DataEncryption:
     """Class to handle data encryption and decryption."""
@@ -97,3 +112,7 @@ if __name__ == "__main__":
 
     decrypted_data = data_encryption.decrypt_data(encrypted_data)
     logging.info(f"Decrypted user data: {decrypted_data}")
+
+    # Quantum randomness example
+    quantum_randomness = QuantumHash(user_data).create_quantum_hash()
+    logging.info(f"Quantum randomness generated for user data: {quantum_randomness}")
