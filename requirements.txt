@@ -22,7 +22,7 @@ python-dotenv==0.19.2
 # Additional dependencies for quantum computing and AI
 qiskit==0.39.1  # For quantum computing
 scikit-learn==1.0.2  # For machine learning
-numpy==1.21.6  # For numerical operations
+numpy==1.22.0  # For numerical operations
 
 # Optional: Joblib for model persistence
 joblib==1.1.0  # For saving and loading models
