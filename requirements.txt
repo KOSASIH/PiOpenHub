@@ -1,3 +1,4 @@
+# Flask and related libraries
 Flask==2.2.5
 Flask-RESTful==0.3.9
 SQLAlchemy==1.4.36
@@ -5,14 +6,23 @@ Flask-SQLAlchemy==2.5.1
 Flask-JWT-Extended==4.4.0
 marshmallow==3.18.0
 Flask-Logging==0.2.0
+
+# Testing libraries
 pytest==7.1.2
 pytest-flask==1.2.0
 pytest-cov==3.0.0
+
+# Web3 and HTTP requests
 web3==5.29.0
 requests==2.32.2
+
+# Environment variable management
 python-dotenv==0.19.2
 
 # Additional dependencies for quantum computing and AI
 qiskit==0.39.1  # For quantum computing
 scikit-learn==1.0.2  # For machine learning
 numpy==1.21.6  # For numerical operations
+
+# Optional: Joblib for model persistence
+joblib==1.1.0  # For saving and loading models
