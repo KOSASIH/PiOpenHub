@@ -69,3 +69,24 @@ coverage/
 *.tgz
 *.rar
 *.7z
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+
+# Pytest cache
+.cache/
+pytest_cache/
+
+# Pyre type checker
+.pyre/
+
+# Mypy type checker
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Cython debug symbols
+cython_debug/
+
+# PyInstaller
+*.spec
