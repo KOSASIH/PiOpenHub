@@ -62,6 +62,25 @@ class TransactionRiskAssessment:
         risk_level = "Low" if score == 0 else "Medium" if score == 1 else "High"
         return risk_level
 
+class TransactionHistory:
+    """Class to manage transaction history for customers."""
+    def __init__(self):
+        self.history = {}
+
+    def add_transaction(self, customer_id, transaction_info):
+        """Add a transaction to the customer's history."""
+        if customer_id not in self.history:
+            self.history[customer_id] = []
+        self.history[customer_id].append(transaction_info)
+
+    def get_history(self, customer_id):
+        """Get the transaction history for a customer."""
+        return self.history.get(customer_id, [])
+
+    def report_suspicious_activity(self, customer_id, transaction_info):
+        """Report suspicious activity."""
+        print(f"Suspicious activity reported for {customer_id}: {transaction_info}")
+
 # Example usage
 if __name__ == "__main__":
     # Sample transaction data for anomaly detection
@@ -99,3 +118,15 @@ if __name__ == "__main__":
     risk_assessment = TransactionRiskAssessment(transaction_info)
     risk_level = risk_assessment.assess_risk()
     print(f"Risk level for transaction: {risk_level}")
+
+    # Transaction history management
+    transaction_history = TransactionHistory()
+    transaction_history.add_transaction(customer_id, transaction_info)
+
+    # Check transaction history
+    history = transaction_history.get_history(customer_id)
+    print(f"Transaction history for {customer_id}: {history}")
+
+    # Report suspicious activity
+    if risk_level == "High":
+        transaction_history.report_suspicious_activity(customer_id, transaction_info)
