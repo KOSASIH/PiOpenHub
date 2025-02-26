@@ -1,112 +1,121 @@
-import requests
 import logging
-import hashlib
-import json
-from datetime import datetime
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.backends import default_backend
+from cryptography.fernet import Fernet
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class CryptoService:
-    def __init__(self, api_key, api_secret):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        self.base_url = "https://api.cryptoexchange.com/v1"  # Example API endpoint
+class PiWallet:
+    def __init__(self, user_id, pi_blockchain_api, encryption_key):
+        self.user_id = user_id
+        self.pi_blockchain_api = pi_blockchain_api  # API instance for interacting with the Pi blockchain
+        self.encryption_key = encryption_key  # Key for encrypting sensitive data
+        self.pi_balance = self.get_pi_balance()
 
-    def generate_key_pair(self):
-        """Generate a new RSA key pair for secure transactions."""
-        private_key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048,
-            backend=default_backend()
-        )
-        public_key = private_key.public_key()
-        return private_key, public_key
+    def encrypt_data(self, data):
+        """Encrypt sensitive data using Fernet symmetric encryption."""
+        fernet = Fernet(self.encryption_key)
+        return fernet.encrypt(data.encode()).decode()
 
-    def sign_transaction(self, private_key, transaction_data):
-        """Sign a transaction using the private key."""
-        transaction_json = json.dumps(transaction_data, sort_keys=True).encode()
-        signature = private_key.sign(
-            transaction_json,
-            padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH
-            ),
-            hashes.SHA256()
-        )
-        return signature
+    def decrypt_data(self, encrypted_data):
+        """Decrypt sensitive data using Fernet symmetric encryption."""
+        fernet = Fernet(self.encryption_key)
+        return fernet.decrypt(encrypted_data.encode()).decode()
 
-    def create_transaction(self, sender, recipient, amount):
-        """Create a new cryptocurrency transaction."""
-        transaction_data = {
-            "sender": sender,
-            "recipient": recipient,
-            "amount": amount,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        logging.info(f"Creating transaction: {transaction_data}")
-        return transaction_data
-
-    def broadcast_transaction(self, transaction_data):
-        """Broadcast the transaction to the blockchain network."""
+    def get_pi_balance(self):
+        """Retrieve the current Pi Coin balance for the user."""
         try:
-            response = requests.post(f"{self.base_url}/transactions", json=transaction_data, headers={
-                "API-Key": self.api_key,
-                "Content-Type": "application/json"
-            })
-            response.raise_for_status()
-            logging.info("Transaction broadcasted successfully.")
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error broadcasting transaction: {e}")
+            balance = self.pi_blockchain_api.get_balance(self.user_id)
+            logging.info(f"Retrieved balance for user {self.user_id}: {balance} Pi")
+            return balance
+        except Exception as e:
+            logging.error(f"Error retrieving balance: {e}")
+            return 0  # Return 0 if there is an error
+
+    def send_pi(self, recipient, amount):
+        """Send Pi Coins to a recipient with enhanced security and logging."""
+        if amount <= 0:
+            logging.warning("Amount must be greater than zero.")
             return None
 
-    def get_transaction_status(self, transaction_id):
-        """Get the status of a transaction."""
-        try:
-            response = requests.get(f"{self.base_url}/transactions/{transaction_id}", headers={
-                "API-Key": self.api_key
-            })
-            response.raise_for_status()
-            logging.info(f"Transaction status retrieved: {response.json()}")
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error retrieving transaction status: {e}")
+        if amount > self.pi_balance:
+            logging.warning("Insufficient balance.")
             return None
 
-    def hash_transaction(self, transaction_data):
-        """Generate a hash for the transaction data."""
-        transaction_json = json.dumps(transaction_data, sort_keys=True).encode()
-        transaction_hash = hashlib.sha256(transaction_json).hexdigest()
-        logging.info(f"Transaction hash generated: {transaction_hash}")
-        return transaction_hash
+        try:
+            # Encrypt transaction details for security
+            encrypted_recipient = self.encrypt_data(recipient)
+            tx = self.pi_blockchain_api.create_transaction(self.user_id, encrypted_recipient, amount)
+            if tx:
+                self.pi_balance -= amount  # Deduct the amount from the balance
+                logging.info(f"Transaction successful: {tx}")
+                return tx
+            else:
+                logging.error("Transaction failed.")
+                return None
+        except Exception as e:
+            logging.error(f"Error sending Pi: {e}")
+            return None
+
+    def multi_signature_transaction(self, recipients, amounts, signatures):
+        """Process a multi-signature transaction."""
+        if len(recipients) != len(amounts) or len(recipients) != len(signatures):
+            logging.error("Mismatch in recipients, amounts, and signatures length.")
+            return None
+
+        total_amount = sum(amounts)
+        if total_amount > self.pi_balance:
+            logging.warning("Insufficient balance for multi-signature transaction.")
+            return None
+
+        try:
+            tx = self.pi_blockchain_api.create_multi_signature_transaction(self.user_id, recipients, amounts, signatures)
+            if tx:
+                self.pi_balance -= total_amount  # Deduct the total amount from the balance
+                logging.info(f"Multi-signature transaction successful: {tx}")
+                return tx
+            else:
+                logging.error("Multi-signature transaction failed.")
+                return None
+        except Exception as e:
+            logging.error(f"Error processing multi-signature transaction: {e}")
+            return None
 
 # Example usage
 if __name__ == "__main__":
-    api_key = "your_api_key"
-    api_secret = "your_api_secret"
-    
-    crypto_service = CryptoService(api_key, api_secret)
-    
-    # Generate key pair
-    private_key, public_key = crypto_service.generate_key_pair()
-    
-    # Create a transaction
-    transaction = crypto_service.create_transaction("sender_address", "recipient_address", 0.01)
-    
-    # Sign the transaction
-    signature = crypto_service.sign_transaction(private_key, transaction)
-    
-    # Hash the transaction
-    transaction_hash = crypto_service.hash_transaction(transaction)
-    
-    # Broadcast the transaction
-    transaction_response = crypto_service.broadcast_transaction(transaction)
-    
-    # Check transaction status
-    if transaction_response:
-        transaction_id = transaction_response.get("id")
-        status = crypto_service.get_transaction_status(transaction_id)
+    class MockPiBlockchainAPI:
+        """Mock API for demonstration purposes."""
+        def get_balance(self, user_id):
+            return 100  # Mock balance
+
+        def create_transaction(self, sender, recipient, amount):
+            return {"tx_id": "12345", "sender": sender, "recipient": recipient, "amount": amount}
+
+        def create_multi_signature_transaction(self, sender, recipients, amounts, signatures):
+            return {"tx_id": "67890", "sender": sender, "recipients": recipients, "amounts": amounts}
+
+    # Create a mock API instance
+    pi_blockchain_api = MockPiBlockchainAPI()
+
+    # Generate a key for encryption
+    encryption_key = Fernet.generate_key()
+
+    # Create a PiWallet instance for a user
+    user_wallet = PiWallet(user_id="user123", pi_blockchain_api=pi_blockchain_api, encryption_key=encryption_key)
+
+    # Retrieve balance
+    print(f"User  balance: {user_wallet.pi_balance}")
+
+    # Send Pi Coins
+    transaction = user_wallet.send_pi(recipient="recipient456", amount=10)
+    print(f"Transaction details: {transaction}")
+
+    # Check updated balance
+    print(f"Updated balance: {user_wallet.pi_balance}")
+
+    # Multi-signature transaction example
+    multi_sig_tx = user_wallet.multi_signature_transaction(
+        recipients=["recipient789", "recipient101"],
+        amounts=[5, 5],
+        signatures=["signature1", "signature2"]
+    )
+    print(f"Multi-signature transaction details: {multi_sig_tx}")
