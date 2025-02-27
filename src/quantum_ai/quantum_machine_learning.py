@@ -1,63 +1,91 @@
 # src/quantum_ai/quantum_machine_learning.py
 
-import time
 import numpy as np
+from qiskit import QuantumCircuit, Aer, execute
+from qiskit.circuit.library import RealAmplitudes
+from qiskit_machine_learning.algorithms import VQC
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from qiskit import Aer
-from qiskit.circuit.library import ZZFeatureMap, RealAmplitudes
-from qiskit_machine_learning.algorithms.classifiers import VQC
-from qiskit_machine_learning.optimizers import COBYLA
 
 class QuantumMachineLearning:
-    def __init__(self):
+    def __init__(self, n_qubits):
+        self.n_qubits = n_qubits
         self.backend = Aer.get_backend('aer_simulator')
 
-    def load_data(self):
-        """Load the Iris dataset."""
-        iris_data = load_iris()
-        features = iris_data.data
-        labels = iris_data.target
-        return features, labels
+    def create_circuit(self, params):
+        """Create a quantum circuit for machine learning."""
+        qc = QuantumCircuit(self.n_qubits)
 
-    def preprocess_data(self, features, labels):
-        """Split the dataset into training and testing sets."""
-        train_features, test_features, train_labels, test_labels = train_test_split(
-            features, labels, train_size=0.8, random_state=123
-        )
-        return train_features, test_features, train_labels, test_labels
+        # Apply rotation gates based on input parameters
+        for i in range(self.n_qubits):
+            qc.ry(params[i], i)
 
-    def train_model(self, train_features, train_labels):
-        """Train a Variational Quantum Classifier."""
-        num_features = train_features.shape[1]
-        feature_map = ZZFeatureMap(feature_dimension=num_features, reps=2)
-        ansatz = RealAmplitudes(num_qubits=num_features, reps=3)
-        optimizer = COBYLA(maxiter=100)
+        qc.measure_all()  # Measure all qubits
+        return qc
 
-        vqc = VQC(
-            feature_map=feature_map,
-            ansatz=ansatz,
-            optimizer=optimizer,
-            sampler=self.backend
-        )
+    def train_quantum_model(self, X_train, y_train):
+        """Train a variational quantum classifier."""
+        feature_map = RealAmplitudes(num_qubits=self.n_qubits, reps=2)
+        ansatz = RealAmplitudes(num_qubits=self.n_qubits, reps=2)
 
-        start = time.time()
-        vqc.fit(train_features, train_labels)
-        elapsed = time.time() - start
-        print(f"Training time: {round(elapsed)} seconds")
+        vqc = VQC(feature_map=feature_map, ansatz=ansatz, optimizer='SLSQP', backend=self.backend)
+        vqc.fit(X_train, y_train)
+
         return vqc
 
-    def evaluate_model(self, model, test_features, test_labels):
-        """Evaluate the trained model."""
-        predictions = model.predict(test_features)
-        accuracy = accuracy_score(test_labels, predictions)
-        print(f"Test Accuracy: {accuracy:.2f}")
+    def predict(self, model, X_test):
+        """Make predictions using the trained model."""
+        predictions = []
+        for x in X_test:
+            # Create a circuit for each input
+            qc = self.create_circuit(x)
+            job = execute(qc, self.backend, shots=1024)
+            result = job.result()
+            counts = result.get_counts()
+            prediction = max(counts, key=counts.get)  # Get the most frequent outcome
+            predictions.append(prediction)
+        return predictions
+
+    def train_classical_model(self, X_train, y_train):
+        """Train a classical model for comparison."""
+        model = make_pipeline(StandardScaler(), PCA(n_components=2), LogisticRegression())
+        model.fit(X_train, y_train)
+        return model
+
+    def evaluate_model(self, model, X_test, y_test):
+        """Evaluate the model's performance."""
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        return accuracy
 
 # Example usage
 if __name__ == "__main__":
-    qml = QuantumMachineLearning()
-    features, labels = qml.load_data()
-    train_features, test_features, train_labels, test_labels = qml.preprocess_data(features, labels)
-    model = qml.train_model(train_features, train_labels)
-    qml.evaluate_model(model, test_features, test_labels)
+    # Load dataset
+    iris = load_iris()
+    X = iris.data  # Use the entire dataset
+    y = iris.target
+
+    # Split the dataset
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Create and train the quantum machine learning model
+    n_qubits = 2  # Number of qubits
+    quantum_ml_model = QuantumMachineLearning(n_qubits)
+
+    # Train the quantum model
+    model = quantum_ml_model.train_quantum_model(X_train, y_train)
+
+    # Train a classical model for comparison
+    classical_model = quantum_ml_model.train_classical_model(X_train, y_train)
+
+    # Evaluate both models
+    quantum_accuracy = quantum_ml_model.evaluate_model(model, X_test, y_test)
+    classical_accuracy = quantum_ml_model.evaluate_model(classical_model, X_test, y_test)
+
+    print(f"Quantum Model Accuracy: {quantum_accuracy:.2f}")
+    print(f"Classical Model Accuracy: {classical_accuracy:.2f}")
