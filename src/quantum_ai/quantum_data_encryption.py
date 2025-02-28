@@ -7,12 +7,19 @@ class QuantumDataEncryption:
         self.secret_key = None
 
     def generate_secret_key(self):
-        """Generate a random secret key using quantum key distribution."""
+        """Generate a random secret key using quantum techniques."""
         self.secret_key = np.random.randint(0, 2, size=self.num_qubits).tolist()
         print("Generated Secret Key:", self.secret_key)
 
     def encrypt_data(self, data):
-        """Encrypt data using the generated secret key."""
+        """Encrypt data using the generated secret key.
+
+        Args:
+            data (bytes): The data to encrypt.
+
+        Returns:
+            str: The encrypted data as a binary string.
+        """
         if self.secret_key is None:
             raise ValueError("Secret key not generated. Call generate_secret_key() first.")
 
@@ -22,7 +29,14 @@ class QuantumDataEncryption:
         return encrypted_message
 
     def decrypt_data(self, encrypted_message):
-        """Decrypt data using the generated secret key."""
+        """Decrypt data using the generated secret key.
+
+        Args:
+            encrypted_message (str): The encrypted data as a binary string.
+
+        Returns:
+            bytes: The decrypted data.
+        """
         if self.secret_key is None:
             raise ValueError("Secret key not generated. Call generate_secret_key() first.")
 
@@ -32,7 +46,14 @@ class QuantumDataEncryption:
         return bytes(decrypted_bytes)
 
     def quantum_transform(self, data):
-        """Apply a quantum transformation to the data."""
+        """Apply a quantum transformation to the data.
+
+        Args:
+            data (np.ndarray): The data to transform.
+
+        Returns:
+            np.ndarray: The transformed data.
+        """
         n = len(data)
         qc = QuantumCircuit(n)
         qc.initialize(data.tolist(), range(n))
