@@ -3,12 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-import logging
-from logging.handlers import RotatingFileHandler
+import os
+
+# Import custom utilities
+from utils.logger import setup_logger
+from utils.errorHandler import handle_error
 from routes.userRoutes import user_routes
 from routes.transactionRoutes import transaction_routes
 from config import Config
-import os
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -23,12 +25,7 @@ migrate = Migrate(app, db)
 jwt = JWTManager(app)
 
 # Set up logging
-if not app.debug:
-    handler = RotatingFileHandler('error.log', maxBytes=10000, backupCount=1)
-    handler.setLevel(logging.ERROR)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    app.logger.addHandler(handler)
+logger = setup_logger('app_logger', 'app.log')
 
 # Register routes
 app.register_blueprint(user_routes)
@@ -45,8 +42,8 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    app.logger.error(f"Server Error: {error}")
-    return jsonify(message="Internal server error"), 500
+    logger.error(f"Server Error: {error}")
+    return handle_error(error)
 
 # JWT token verification callback
 @jwt.unauthorized_loader
