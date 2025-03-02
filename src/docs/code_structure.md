@@ -124,4 +124,4 @@ PiOpenHub/
 │   ├── e2e_test_edge.py        # End-to-end tests for edge computing features
 │   └── e2e_test_quantum.py     # End-to-end tests for quantum functionalities
 │
-└── .env                        # Environment variables for configuration
+└── .env                        # Environment variables for
