@@ -20,7 +20,7 @@ requests==2.32.2
 python-dotenv==0.19.2
 
 # Additional dependencies for quantum computing and AI
-qiskit==0.39.1  # For quantum computing
+qiskit==1.4.2  # For quantum computing
 scikit-learn==1.0.2  # For machine learning
 numpy==1.21.6  # For numerical operations
 
