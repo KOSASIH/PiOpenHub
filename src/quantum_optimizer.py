@@ -2,11 +2,11 @@
 
 from qiskit import QuantumCircuit, Aer, transpile
 from qiskit.circuit import Parameter
-from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
-from qiskit.primitives import Sampler, BackendSampler
-from qiskit.circuit.library import RealAmplitudes, EfficientSU2
-from qiskit.quantum_info import SparsePauliOp
-from qiskit_algorithms.optimizers import COBYLA, SPSA, ADAM
+from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver, QAOA
+from qiskit.primitives import Sampler, BackendSampler, Estimator
+from qiskit.circuit.library import RealAmplitudes, EfficientSU2, TwoLocal
+from qiskit.quantum_info import SparsePauliOp, Statevector
+from qiskit_algorithms.optimizers import COBYLA, SPSA, ADAM, L_BFGS_B
 import numpy as np
 
 class QuantumOptimizer:
