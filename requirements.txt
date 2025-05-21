@@ -6,6 +6,7 @@ Flask-SQLAlchemy==3.1.1
 Flask-JWT-Extended==4.5.3
 marshmallow==3.20.1
 Flask-Logging==0.2.0
+Flask-Caching==2.1.0
 
 # Testing libraries
 pytest==7.4.3
