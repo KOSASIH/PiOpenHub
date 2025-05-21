@@ -26,7 +26,7 @@ scikit-learn==1.3.2  # For machine learning
 numpy==1.26.3  # For numerical operations
 pandas==2.1.4  # For data manipulation
 tensorflow==2.15.0  # For deep learning
-torch==2.1.2  # For PyTorch deep learning
+torch==2.7.0  # For PyTorch deep learning
 
 # Optional: Joblib for model persistence
 joblib==1.3.2  # For saving and loading models
